@@ -18,10 +18,34 @@ def dist(xc, yc, i1, i2):
     rounded_dist = int(distance+0.5) # rounds to nearest int
     return rounded_dist
 
+def printer(array):
+    for element in array:
+        print(element)
+        
+def greedy_algorithm(x_coords, y_coords, starting_node=0):
+    tour = [0]
+    used = set()
+    used.add(0)
+    n = len(x_coords)
+    # Run the greedy/naive algorithm
+    for i in range(1, n):
+        best = -1
+        for j in range(0, n):
+            if j not in used and (best == -1 or dist(x_coords, y_coords, tour[i-1], j) < dist(x_coords, y_coords, tour[i-1], best)):
+                 best = j
+        
+        tour.append(best)
+        used.add(best)
+    return tour
+
 def main():
+    # Read input coordinates
     x_coords, y_coords = read_input()
-    for i in range(len(x_coords)):
-        dist(x_coords, y_coords, i, 2)   
+    tour = greedy_algorithm(x_coords, y_coords)
+    printer(tour)
+                 
+                
+
 
 
 main()
