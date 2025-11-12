@@ -1,5 +1,6 @@
 import sys
 import math
+import random
 
 
 def read_input():
@@ -19,30 +20,58 @@ def dist(xc, yc, i1, i2):
     return rounded_dist
 
 def printer(array):
-    for element in array:
-        print(element)
+    out = sys.stdout.write
+    out("\n".join(map(str, array)) + "\n")
         
-def greedy_algorithm(x_coords, y_coords, starting_node=0):
-    tour = [0]
-    used = set()
-    used.add(0)
+def greedy_algorithm(x_coords_in, y_coords_in, starting_node=0):
+    #Make variables local
+    x_coords = x_coords_in
+    y_coords = y_coords_in
+    
     n = len(x_coords)
+    tour = [starting_node]
+    used = [False]*n
+    used[starting_node] = True
+    tour_length = 0
+    
+    # Local variables
+    
+    
     # Run the greedy/naive algorithm
     for i in range(1, n):
         best = -1
         for j in range(0, n):
-            if j not in used and (best == -1 or dist(x_coords, y_coords, tour[i-1], j) < dist(x_coords, y_coords, tour[i-1], best)):
+            if used[j] == False and (best == -1 or dist(x_coords, y_coords, tour[i-1], j) < best_w):
                  best = j
+                 best_w = dist(x_coords, y_coords, tour[i-1], best) # To avoid recomputing it so often
         
         tour.append(best)
-        used.add(best)
-    return tour
+        used[best] = True
+        tour_length += best_w
+    return tour, tour_length
+
+
+def multiple_random_starts(x_coords, y_coords, number_of_starts=1):
+    # There was not time to run it more than once
+    best_path = [[], sys.maxsize]
+    n = len(x_coords)
+    random_numbers = random.sample(range(1, n), number_of_starts-1) #n+1 ensures that we can start on last node, we remove one form number_of_starts because we always add 0
+    random_numbers.append(0) # 0 is the reference, we never want to be worse
+    for i in range(len(random_numbers)): # We start once for every random number
+        tour, cost_of_path = greedy_algorithm(x_coords, y_coords, random_numbers[i])
+        if cost_of_path < best_path[1]:
+            best_path[0] = tour
+            best_path[1] = cost_of_path
+    
+    # print(best_path[1])        
+    return best_path[0]
 
 def main():
     # Read input coordinates
     x_coords, y_coords = read_input()
-    tour = greedy_algorithm(x_coords, y_coords)
+    tour = multiple_random_starts(x_coords, y_coords, 1)
     printer(tour)
+    
                  
                 
 
