@@ -158,16 +158,55 @@ def multiple_starts(dist, N, starts=1):
     
     # print(best_path[1])        
     return best_path[0]
+
+def multiple_starts_returnall(dist, N, starts=1):
+    starts = min(starts, N)
+    paths = []
     
+    # Generate random starts
+    random_numbers = random.sample(range(1, N), starts-1)
+    random_numbers.append(0) # 0 is the reference, we never want to be worse
+    for i in random_numbers: # We start once for every random number
+        tour, cost_of_path = greedy_tour(dist, N, i)
+        paths.append(tour)
     
-def main():
+    # print(best_path[1])        
+    return paths
+
+
+def length_tour(tour, dist):
+    length = 0
+    length += dist[tour[0]][tour[len(tour)-1]]
+    for i in range(1, len(tour)-1):
+        length += dist[tour[i-1]][tour[i]]
+    return length    
+    
+def main_old():
     x, y, N = read_input()
     dist = build_dist(x, y, N)
     tour = multiple_starts(dist, N, 2)
     tour = two_opt(tour, dist)
-
     if N < 1000:
         tour = three_opt(tour, dist, N) 
     output(tour)
-    
+
+def main():
+    x, y, N = read_input()
+    dist = build_dist(x, y, N)
+    tours = multiple_starts_returnall(dist, N, 5)
+    best_path = [[], sys.maxsize]
+    for tour in tours:
+        tour = two_opt(tour, dist)
+        tour_length = length_tour(tour, dist)
+        if N < 120:
+            tour = three_opt(tour, dist, N) 
+            tour_length = length_tour(tour, dist)
+            
+        if tour_length < best_path[1]:
+            best_path[0] = tour
+            best_path[1] = tour_length
+       
+    output(best_path[0])
+
+
 main()
